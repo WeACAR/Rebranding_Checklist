@@ -148,6 +148,9 @@
   // For the prompt modal
   let promptCallback = null;
 
+  // For the confirm modal
+  let confirmCallback = null;
+
   // ──────────────────────────────────────────────────────────
   //  DOM REFS
   // ──────────────────────────────────────────────────────────
@@ -174,6 +177,9 @@
   const $newCriteriaInput    = $("newCriteriaInput");
   const $saveIndicator       = $("saveIndicator");
   const $saveTime            = $("saveTime");
+  const $confirmModal        = $("confirmModal");
+  const $confirmTitle        = $("confirmTitle");
+  const $confirmMessage      = $("confirmMessage");
 
   // ──────────────────────────────────────────────────────────
   //  SVG ICONS
@@ -269,6 +275,12 @@
     $("btnAddNewCriteria").addEventListener("click", addNewCriteria);
     $newCriteriaInput.addEventListener("keydown", (e) => { if (e.key === "Enter") addNewCriteria(); });
 
+    // Confirm modal
+    $("btnCloseConfirm").addEventListener("click", closeConfirmModal);
+    $("btnCancelConfirm").addEventListener("click", closeConfirmModal);
+    $("btnYesConfirm").addEventListener("click", confirmYes);
+    $confirmModal.addEventListener("click", (e) => { if (e.target === $confirmModal) closeConfirmModal(); });
+
     // Global ESC
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
@@ -276,6 +288,7 @@
         closeCriteriaModal();
         closePromptModal();
         closeManageCriteriaModal();
+        closeConfirmModal();
       }
     });
 
@@ -449,10 +462,11 @@
     if (!data) return;
     const c = data.predefinedCriteria[idx];
     if (!c) return;
-    if (!confirm(`Remove predefined criteria "${c.title}"?`)) return;
-    data.predefinedCriteria.splice(idx, 1);
-    persist();
-    renderManageCriteriaList();
+    openConfirmModal("Remove Criteria", `Remove predefined criteria "${c.title}"?`, "Remove", () => {
+      data.predefinedCriteria.splice(idx, 1);
+      persist();
+      renderManageCriteriaList();
+    });
   }
 
   // ──────────────────────────────────────────────────────────
@@ -790,22 +804,53 @@
     const msg = taskCount > 0
       ? `Delete "${found.node.title}" and its ${taskCount} task(s)?`
       : `Delete "${found.node.title}"?`;
-    if (!confirm(msg)) return;
 
-    // Animate removal
-    const el = document.querySelector(`[data-id="${nodeId}"]`);
-    if (el) {
-      el.classList.add("node-removing");
-      setTimeout(() => {
-        found.parent.splice(found.index, 1);
-        persist();
-        render();
-      }, 280);
-    } else {
+    openConfirmModal("Delete", msg, "Delete", () => {
+      // Mutate data immediately
       found.parent.splice(found.index, 1);
       persist();
-      render();
+
+      // In-place DOM removal (no full render — preserves expand/collapse state)
+      const el = document.querySelector(`.tree-node[data-id="${nodeId}"]`);
+      if (el) {
+        const parentUl = el.parentElement;
+        const parentLi = parentUl ? parentUl.closest(".tree-node[data-id]") : null;
+
+        const finishRemoval = () => {
+          if (!el.parentElement) return;
+          el.remove();
+          if (parentLi) updateNodeProgress(parentLi);
+          if (parentLi) updateAncestorProgress(parentLi);
+          updateTabProgress();
+          updateGlobalProgress();
+        };
+
+        el.classList.add("node-removing");
+        el.addEventListener("animationend", finishRemoval, { once: true });
+        setTimeout(finishRemoval, 400);
+      } else {
+        updateTabProgress();
+        updateGlobalProgress();
+      }
+    });
+  }
+
+  /** Update a single tree-node's badge and progress bar from data */
+  function updateNodeProgress(liEl) {
+    const nId = liEl.dataset.id;
+    if (!nId) return;
+    const found = findNodeAndParent(nId, data.topics, null);
+    if (!found) return;
+    const counts = countTasks(found.node);
+    const pct = counts.total > 0 ? Math.round((counts.done / counts.total) * 100) : 0;
+    const allDone = counts.total > 0 && counts.done === counts.total;
+    const badge = liEl.querySelector(":scope > .tree-title > .tree-title__badge");
+    if (badge) {
+      badge.textContent = `${counts.done} / ${counts.total}`;
+      badge.className = "tree-title__badge " + (allDone ? "tree-title__badge--done" : "tree-title__badge--pending");
     }
+    const fill = liEl.querySelector(":scope > .tree-title .tree-title__progress-fill");
+    if (fill) fill.style.width = pct + "%";
   }
 
   function addChild(parentNode, type) {
@@ -854,16 +899,17 @@
     const msg = taskCount > 0
       ? `Delete project "${topic.title}" and all its ${taskCount} task(s)?`
       : `Delete project "${topic.title}"?`;
-    if (!confirm(msg)) return;
-    data.topics.splice(idx, 1);
-    if (data.topics.length === 0) {
-      data = null;
-      localStorage.removeItem("rebranding_checklist");
-    } else {
-      activeTabIdx = Math.min(activeTabIdx, data.topics.length - 1);
-      persist();
-    }
-    render();
+    openConfirmModal("Delete Project", msg, "Delete", () => {
+      data.topics.splice(idx, 1);
+      if (data.topics.length === 0) {
+        data = null;
+        localStorage.removeItem("rebranding_checklist");
+      } else {
+        activeTabIdx = Math.min(activeTabIdx, data.topics.length - 1);
+        persist();
+      }
+      render();
+    });
   }
 
   // ──────────────────────────────────────────────────────────
@@ -887,6 +933,27 @@
     if (!val) { $promptInput.focus(); return; }
     if (promptCallback) promptCallback(val);
     closePromptModal();
+  }
+
+  // ──────────────────────────────────────────────────────────
+  //  CONFIRM MODAL (non-blocking replacement for confirm())
+  // ──────────────────────────────────────────────────────────
+  function openConfirmModal(title, message, btnLabel, callback) {
+    $confirmTitle.textContent = title;
+    $confirmMessage.textContent = message;
+    $("btnYesConfirm").textContent = btnLabel || "Confirm";
+    confirmCallback = callback;
+    $confirmModal.classList.add("modal-overlay--visible");
+  }
+
+  function closeConfirmModal() {
+    $confirmModal.classList.remove("modal-overlay--visible");
+    confirmCallback = null;
+  }
+
+  function confirmYes() {
+    if (confirmCallback) confirmCallback();
+    closeConfirmModal();
   }
 
   // ──────────────────────────────────────────────────────────
@@ -1140,10 +1207,11 @@
 
   function resetAll() {
     if (!data) return;
-    if (!confirm("Reset all tasks to unchecked? This cannot be undone.")) return;
-    resetNodes(data.topics);
-    persist();
-    render();
+    openConfirmModal("Reset All", "Reset all tasks to unchecked? This cannot be undone.", "Reset", () => {
+      resetNodes(data.topics);
+      persist();
+      render();
+    });
   }
 
   function resetNodes(nodes) {

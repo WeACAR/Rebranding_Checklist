@@ -117,6 +117,12 @@ body.edit-mode .top-bar {
 }
 .btn--primary:hover { background: var(--clr-primary-dark); transform: translateY(-1px); }
 
+.btn--danger {
+  background: var(--clr-danger);
+  color: #fff;
+}
+.btn--danger:hover { background: #b91c1c; transform: translateY(-1px); }
+
 .btn--success {
   background: var(--clr-success);
   color: #fff;
@@ -544,6 +550,8 @@ body.edit-mode .tree-add-row { display: flex; }
   animation: overlayIn .3s ease both;
 }
 
+#confirmModal { z-index: 1100; }
+
 .modal {
   background: var(--clr-surface);
   border-radius: 12px;
@@ -745,6 +753,13 @@ textarea:focus {
   justify-content: flex-end;
   gap: 8px;
   margin-top: 16px;
+}
+
+.confirm-message {
+  font-size: .95rem;
+  line-height: 1.5;
+  color: var(--clr-text);
+  margin: 0;
 }
 
 /* ===== CRITERIA MODAL ===== */
