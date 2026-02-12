@@ -1,0 +1,144 @@
+{
+  "title": "Rebranding Review Checklist",
+  "predefinedCriteria": [
+    { "id": "pc-logo",       "title": "Logo replaced with new brand logo" },
+    { "id": "pc-favicon",    "title": "Favicon updated" },
+    { "id": "pc-colors",     "title": "Color scheme matches new brand palette" },
+    { "id": "pc-typography", "title": "Typography matches brand guidelines" },
+    { "id": "pc-buttons",    "title": "Buttons styled to new brand standards" },
+    { "id": "pc-icons",      "title": "Icon set replaced with brand icons" },
+    { "id": "pc-images",     "title": "Images / illustrations use new brand style" },
+    { "id": "pc-header",     "title": "Header / navigation updated with new branding" },
+    { "id": "pc-footer",     "title": "Footer updated with new brand assets" },
+    { "id": "pc-social",     "title": "Social media links and icons updated" },
+    { "id": "pc-forms",      "title": "Form elements styled to brand guidelines" },
+    { "id": "pc-loading",    "title": "Loading / spinner animations use brand style" },
+    { "id": "pc-error",      "title": "Error pages reflect new branding" },
+    { "id": "pc-email",      "title": "Transactional email templates updated" },
+    { "id": "pc-meta",       "title": "Meta tags and OG images updated" },
+    { "id": "pc-print",      "title": "Print stylesheets updated" },
+    { "id": "pc-a11y",       "title": "Color contrast meets accessibility standards" },
+    { "id": "pc-dark",       "title": "Dark mode theme updated (if applicable)" },
+    { "id": "pc-motion",     "title": "Animations / transitions match brand motion style" },
+    { "id": "pc-copy",       "title": "Marketing copy reflects new brand voice" }
+  ],
+  "topics": [
+    {
+      "id": "proj-website",
+      "title": "Corporate Website",
+      "type": "title",
+      "children": [
+        {
+          "id": "page-home",
+          "title": "Home Page",
+          "type": "title",
+          "children": [
+            { "id": "t-home-1", "title": "Logo replaced with new brand logo", "type": "task", "checked": false },
+            { "id": "t-home-2", "title": "Favicon updated", "type": "task", "checked": false },
+            { "id": "t-home-3", "title": "Hero banner uses new brand colors", "type": "task", "checked": false },
+            { "id": "t-home-4", "title": "Typography matches brand guidelines", "type": "task", "checked": false },
+            { "id": "t-home-5", "title": "Call-to-action buttons use new style", "type": "task", "checked": false },
+            { "id": "t-home-6", "title": "Footer updated with new brand assets", "type": "task", "checked": false }
+          ]
+        },
+        {
+          "id": "page-about",
+          "title": "About Us Page",
+          "type": "title",
+          "children": [
+            { "id": "t-about-1", "title": "Company description updated", "type": "task", "checked": false },
+            { "id": "t-about-2", "title": "Team photos use new brand frame style", "type": "task", "checked": false },
+            { "id": "t-about-3", "title": "Mission/Vision text reflects rebrand", "type": "task", "checked": false },
+            { "id": "t-about-4", "title": "Page header uses new brand imagery", "type": "task", "checked": false }
+          ]
+        },
+        {
+          "id": "page-contact",
+          "title": "Contact Page",
+          "type": "title",
+          "children": [
+            { "id": "t-contact-1", "title": "Form styling matches brand guidelines", "type": "task", "checked": false },
+            { "id": "t-contact-2", "title": "Map marker uses new brand icon", "type": "task", "checked": false },
+            { "id": "t-contact-3", "title": "Social media links updated", "type": "task", "checked": false }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "proj-mobile",
+      "title": "Mobile App",
+      "type": "title",
+      "children": [
+        {
+          "id": "page-splash",
+          "title": "Splash / Login Screen",
+          "type": "title",
+          "children": [
+            { "id": "t-splash-1", "title": "Splash screen logo updated", "type": "task", "checked": false },
+            { "id": "t-splash-2", "title": "Background gradient uses new palette", "type": "task", "checked": false },
+            { "id": "t-splash-3", "title": "Login button styles updated", "type": "task", "checked": false }
+          ]
+        },
+        {
+          "id": "page-dashboard",
+          "title": "Dashboard",
+          "type": "title",
+          "children": [
+            { "id": "t-dash-1", "title": "Navigation bar colors updated", "type": "task", "checked": false },
+            { "id": "t-dash-2", "title": "Card components use new border radius", "type": "task", "checked": false },
+            { "id": "t-dash-3", "title": "Icon set replaced with brand icons", "type": "task", "checked": false },
+            { "id": "t-dash-4", "title": "Chart colors match brand palette", "type": "task", "checked": false }
+          ]
+        },
+        {
+          "id": "page-settings",
+          "title": "Settings",
+          "type": "title",
+          "children": [
+            { "id": "t-set-1", "title": "Toggle/switch components restyled", "type": "task", "checked": false },
+            { "id": "t-set-2", "title": "App version footer updated", "type": "task", "checked": false }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "proj-email",
+      "title": "Email Templates",
+      "type": "title",
+      "children": [
+        {
+          "id": "email-welcome",
+          "title": "Welcome Email",
+          "type": "title",
+          "children": [
+            { "id": "t-ew-1", "title": "Header logo replaced", "type": "task", "checked": false },
+            { "id": "t-ew-2", "title": "Color scheme updated", "type": "task", "checked": false },
+            { "id": "t-ew-3", "title": "Footer social links updated", "type": "task", "checked": false }
+          ]
+        },
+        {
+          "id": "email-newsletter",
+          "title": "Newsletter",
+          "type": "title",
+          "children": [
+            { "id": "t-en-1", "title": "Banner image uses new branding", "type": "task", "checked": false },
+            { "id": "t-en-2", "title": "Button styles match brand", "type": "task", "checked": false },
+            { "id": "t-en-3", "title": "Unsubscribe footer updated", "type": "task", "checked": false }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "proj-social",
+      "title": "Social Media Assets",
+      "type": "title",
+      "children": [
+        { "id": "t-soc-1", "title": "Profile pictures updated across all platforms", "type": "task", "checked": false },
+        { "id": "t-soc-2", "title": "Cover/banner images updated", "type": "task", "checked": false },
+        { "id": "t-soc-3", "title": "Post templates use new brand colors", "type": "task", "checked": false },
+        { "id": "t-soc-4", "title": "Story highlight covers updated", "type": "task", "checked": false },
+        { "id": "t-soc-5", "title": "Bio/description text updated", "type": "task", "checked": false }
+      ]
+    }
+  ]
+}

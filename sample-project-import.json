@@ -1,0 +1,39 @@
+{
+  "id": "proj-new-website",
+  "title": "New Website Redesign",
+  "type": "title",
+  "children": [
+    {
+      "id": "page-landing",
+      "title": "Landing Page",
+      "type": "title",
+      "children": [
+        { "id": "t-land-1", "title": "Logo replaced with new brand logo", "type": "task", "checked": false },
+        { "id": "t-land-2", "title": "Favicon updated", "type": "task", "checked": false },
+        { "id": "t-land-3", "title": "Hero banner uses new brand colors", "type": "task", "checked": false },
+        { "id": "t-land-4", "title": "Typography matches brand guidelines", "type": "task", "checked": false },
+        { "id": "t-land-5", "title": "Call-to-action buttons use new style", "type": "task", "checked": false }
+      ]
+    },
+    {
+      "id": "page-pricing",
+      "title": "Pricing Page",
+      "type": "title",
+      "children": [
+        { "id": "t-price-1", "title": "Pricing cards styled to new brand", "type": "task", "checked": false },
+        { "id": "t-price-2", "title": "Toggle buttons use brand colors", "type": "task", "checked": false },
+        { "id": "t-price-3", "title": "Comparison table follows brand guidelines", "type": "task", "checked": false }
+      ]
+    },
+    {
+      "id": "page-blog",
+      "title": "Blog Page",
+      "type": "title",
+      "children": [
+        { "id": "t-blog-1", "title": "Article cards use new brand layout", "type": "task", "checked": false },
+        { "id": "t-blog-2", "title": "Author section updated with brand style", "type": "task", "checked": false },
+        { "id": "t-blog-3", "title": "Share buttons use new brand icons", "type": "task", "checked": false }
+      ]
+    }
+  ]
+}
