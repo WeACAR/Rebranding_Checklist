@@ -169,6 +169,11 @@
   const $promptModal    = $("promptModal");
   const $promptInput    = $("promptInput");
   const $promptTitle    = $("promptTitle");
+  const $manageCriteriaModal = $("manageCriteriaModal");
+  const $manageCriteriaList  = $("manageCriteriaList");
+  const $newCriteriaInput    = $("newCriteriaInput");
+  const $saveIndicator       = $("saveIndicator");
+  const $saveTime            = $("saveTime");
 
   // ──────────────────────────────────────────────────────────
   //  SVG ICONS
@@ -257,12 +262,20 @@
     $promptModal.addEventListener("click", (e) => { if (e.target === $promptModal) closePromptModal(); });
     $promptInput.addEventListener("keydown", (e) => { if (e.key === "Enter") promptConfirm(); });
 
+    // Manage Criteria modal
+    $("btnManageCriteria").addEventListener("click", openManageCriteriaModal);
+    $("btnCloseManageCriteria").addEventListener("click", closeManageCriteriaModal);
+    $manageCriteriaModal.addEventListener("click", (e) => { if (e.target === $manageCriteriaModal) closeManageCriteriaModal(); });
+    $("btnAddNewCriteria").addEventListener("click", addNewCriteria);
+    $newCriteriaInput.addEventListener("keydown", (e) => { if (e.key === "Enter") addNewCriteria(); });
+
     // Global ESC
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         closeImportModal();
         closeCriteriaModal();
         closePromptModal();
+        closeManageCriteriaModal();
       }
     });
 
@@ -312,7 +325,134 @@
   }
 
   function persist() {
-    if (data) localStorage.setItem("rebranding_checklist", JSON.stringify(data));
+    if (data) {
+      localStorage.setItem("rebranding_checklist", JSON.stringify(data));
+      showSaveIndicator();
+    }
+  }
+
+  let _saveFlashTimer = null;
+  function showSaveIndicator() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    $saveTime.textContent = timeStr;
+    $saveIndicator.classList.add('save-indicator--just-saved');
+    clearTimeout(_saveFlashTimer);
+    _saveFlashTimer = setTimeout(() => $saveIndicator.classList.remove('save-indicator--just-saved'), 2000);
+  }
+
+  // ──────────────────────────────────────────────────────────
+  //  MANAGE PREDEFINED CRITERIA (editor)
+  // ──────────────────────────────────────────────────────────
+  function openManageCriteriaModal() {
+    renderManageCriteriaList();
+    $newCriteriaInput.value = '';
+    $manageCriteriaModal.classList.add('modal-overlay--visible');
+    setTimeout(() => $newCriteriaInput.focus(), 100);
+  }
+
+  function closeManageCriteriaModal() {
+    $manageCriteriaModal.classList.remove('modal-overlay--visible');
+  }
+
+  function renderManageCriteriaList() {
+    const criteria = data ? data.predefinedCriteria : DEFAULT_PREDEFINED_CRITERIA;
+    $manageCriteriaList.innerHTML = criteria.map((c, i) => `
+      <div class="manage-criteria-item" style="animation-delay:${i * 25}ms" data-idx="${i}">
+        <span class="manage-criteria-item__label">${esc(c.title)}</span>
+        <span class="manage-criteria-item__actions">
+          <button class="mc-action-btn mc-action-btn--edit" title="Rename" data-action="rename-criteria" data-idx="${i}">${icon('edit', 14)}</button>
+          <button class="mc-action-btn mc-action-btn--delete" title="Remove" data-action="delete-criteria" data-idx="${i}">${icon('delete', 14)}</button>
+        </span>
+      </div>
+    `).join('');
+
+    // event delegation
+    $manageCriteriaList.onclick = (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const idx = parseInt(btn.dataset.idx, 10);
+      const action = btn.dataset.action;
+      if (action === 'rename-criteria') renameCriteria(idx);
+      if (action === 'delete-criteria') deleteCriteria(idx);
+    };
+  }
+
+  function addNewCriteria() {
+    const val = $newCriteriaInput.value.trim();
+    if (!val) return;
+    if (!data) return;
+    const id = 'pc-' + genId();
+    data.predefinedCriteria.push({ id, title: val });
+    persist();
+    $newCriteriaInput.value = '';
+    renderManageCriteriaList();
+    // scroll to bottom
+    $manageCriteriaList.scrollTop = $manageCriteriaList.scrollHeight;
+  }
+
+  function renameCriteria(idx) {
+    if (!data) return;
+    const c = data.predefinedCriteria[idx];
+    if (!c) return;
+
+    // Find the row and label span
+    const row = $manageCriteriaList.querySelector(`[data-idx="${idx}"]`);
+    if (!row) return;
+    const labelSpan = row.querySelector('.manage-criteria-item__label');
+    if (!labelSpan) return;
+
+    // Already editing? bail.
+    if (row.classList.contains('is-editing')) return;
+    row.classList.add('is-editing');
+
+    // Replace label with an input
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'mc-inline-input';
+    input.value = c.title;
+    labelSpan.replaceWith(input);
+    input.focus();
+    input.select();
+
+    // Swap action buttons to confirm/cancel
+    const actionsSpan = row.querySelector('.manage-criteria-item__actions');
+    const oldHTML = actionsSpan.innerHTML;
+    actionsSpan.innerHTML = `
+      <button class="mc-action-btn mc-action-btn--confirm" title="Save"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button>
+      <button class="mc-action-btn mc-action-btn--cancel" title="Cancel"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    `;
+
+    const commit = () => {
+      const val = input.value.trim();
+      if (val && val !== c.title) {
+        c.title = val;
+        persist();
+      }
+      renderManageCriteriaList();
+    };
+    const cancel = () => renderManageCriteriaList();
+
+    actionsSpan.querySelector('.mc-action-btn--confirm').addEventListener('click', commit);
+    actionsSpan.querySelector('.mc-action-btn--cancel').addEventListener('click', cancel);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') commit();
+      if (e.key === 'Escape') cancel();
+    });
+    input.addEventListener('blur', (e) => {
+      // Small delay to allow button clicks to fire first
+      setTimeout(() => { if (row.classList.contains('is-editing')) commit(); }, 150);
+    });
+  }
+
+  function deleteCriteria(idx) {
+    if (!data) return;
+    const c = data.predefinedCriteria[idx];
+    if (!c) return;
+    if (!confirm(`Remove predefined criteria "${c.title}"?`)) return;
+    data.predefinedCriteria.splice(idx, 1);
+    persist();
+    renderManageCriteriaList();
   }
 
   // ──────────────────────────────────────────────────────────
